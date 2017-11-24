@@ -90,7 +90,6 @@ MAP Win Percentage:  85.707
 There's still a long list of ways to make **bcf** better:
 
 * Fit a density to each player, not necessarily a beta distribution.
-* Update `game.as.data.frame()` to be faster and more robust.
 * Sample directly from the posterior, not the joint distribution.
     - Compute the likelihood for *N*-player games.
 * Infer expected win/loss records from a player's win distribution.

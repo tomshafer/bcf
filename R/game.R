@@ -37,17 +37,7 @@ new_game <- function(players, result = NULL, samples = NULL, ...) {
 #' @keywords internal
 #' @export
 print.bcf_game <- function(x, ...) {
-  tmp <- as.data.frame(x)
-
-  # Drop the thetas for printing
-  np <- ncol(tmp) %/% 2
-  tmp <- tmp[-c((np + 1):(2 * np))]
-
-  # Group together
-  tmp <- dplyr::ungroup(dplyr::count(dplyr::group_by_all(tmp)))
-  tmp["pct"] <- round(100 * tmp$n / sum(tmp$n), 1)
-
-  print(tmp)
+  print(dplyr::as_tibble(summary(x)))
   invisible(x)
 }
 
@@ -62,22 +52,22 @@ print.bcf_game <- function(x, ...) {
 #' @keywords internal
 #' @export
 as.data.frame.bcf_game <- function(x, ...) {
-  result <- data.frame(x$samples)
+  result <- x$samples
 
   if (!is.null(x$result)) {
-    result$outcome <- ""
-
-    # Assign "***" the the row of the data frame matching the outcome
-    mask <- match_samples(result, x$result)
-    result[mask, ]$outcome <- "***"
+    result$outcome <- match_samples(result, x$result)
+  } else {
+    result$outcome <- NA
   }
 
+  # Set columns names
   np <- length(x$players)
   names(result)[1:np] <- vapply(x$players, get_name, "")
   names(result)[(np + 1):(2 * np)] <- paste0("theta_", names(result)[1:np])
 
   result
 }
+
 
 #' Match samples corresponding to a result
 #'
@@ -89,14 +79,14 @@ as.data.frame.bcf_game <- function(x, ...) {
 #' @keywords internal
 match_samples <- function(samples, result) {
   mask <- apply(samples, 1, function(.r) .r[1:length(result)] == result)
-  mask <- apply(mask,    2, function(.c) all(.c))
+  mask <- apply(mask,    2, all)
   mask
 }
 
 
 #' S3 plot method for a game
 #'
-#' @param x S3 player object.
+#' @param x S3 game object.
 #' @param ... Additional parameters.
 #'
 #' @return A ggplot2 plot.
@@ -138,4 +128,28 @@ plot.bcf_game <- function(x, ...) {
 
   print(pl)
   invisible(pl)
+}
+
+
+#' S3 summary method for a game
+#'
+#' @param object S3 game object.
+#' @param ... Additional parameters.
+#'
+#' @return A data frame.
+#'
+#' @keywords internal
+#' @export
+summary.bcf_game <- function(object, ...) {
+  np <- length(object$players)
+  tmp <- as.data.frame(object)
+
+  outcomes <- unique(tmp[, c(1:np, ncol(tmp))])
+  outcomes$n <- 0
+  for (i in 1:nrow(outcomes)) {
+    outcomes$n[i] <- nrow(merge(outcomes[i, ], tmp))
+  }
+
+  outcomes$pct <- round(100 * outcomes$n / sum(outcomes$n), 1)
+  outcomes[order(outcomes$outcome, outcomes$n, decreasing = TRUE), ]
 }

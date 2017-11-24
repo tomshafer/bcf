@@ -7,7 +7,7 @@
 \method{plot}{bcf_game}(x, ...)
 }
 \arguments{
-\item{x}{S3 player object.}
+\item{x}{S3 game object.}
 
 \item{...}{Additional parameters.}
 }

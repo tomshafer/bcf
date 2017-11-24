@@ -1,6 +1,6 @@
 Package: bcf
 Title: Bayesian Coin Flip
-Version: 0.1
+Version: 0.1.1
 Authors@R: person("Tom", "Shafer", email = "tom@tshafer.com", role = c("aut", "cre"))
 Description: Apply Approximate Bayesian Computation to estimate win
   proababilties in games that can be approximated by multiple individuals
@@ -17,6 +17,6 @@ Imports:
   uuid
 Suggests:
   ggplot2,
-    knitr,
-    rmarkdown
+  knitr,
+  rmarkdown
 VignetteBuilder: knitr
